@@ -36,12 +36,32 @@ def message(bot, context):
     bot.message.reply_text(str(count))
 
 
+def new(bot, context):
+    data = bot.message.text[5:].split(maxsplit=1)
+    file = open("./test/{}".format(data[0]), "w")
+    file.write(data[1])
+    file.close()
+
+
+def add(bot, context):
+    data = bot.message.text[6:].split(maxsplit=1)
+    try:
+        file = open("./test/{}".format(" " + data[0]), "a")
+        file.write(data[1])
+    finally:
+        file.close()
+
+
 def run_bot():
     bot = Updater(TOKEN, use_context=True)
     dispatcher = bot.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
     dispatcher.add_handler(PrefixHandler("#", "run", run))
+
+    dispatcher.add_handler(PrefixHandler("^", "new", new))
+    dispatcher.add_handler(PrefixHandler(">>", "add", add))
+
     dispatcher.add_handler(MessageHandler(Filters.text, message))
 
 
