@@ -12,6 +12,11 @@ HELP = """
     /start - приветствие бота
     /HELP  - это сообщение
     #run   - выполняет 
+    ^new filename.txt data  - создаёт файл "filename.txt" и записывает в него "data"
+    >>add filename.txt data - открывает файл (если он существует)
+    "filename.txt" и дозаписывает в него "data"
+    <<read filename.txt - открывает файл (если он существует)
+    "filename.txt" и считывает из него данные
 """
 
 def start(bot, context):
@@ -46,8 +51,18 @@ def new(bot, context):
 def add(bot, context):
     data = bot.message.text[6:].split(maxsplit=1)
     try:
-        file = open("./test/{}".format(" " + data[0]), "a")
-        file.write(data[1])
+        file = open("./test/{}".format(data[0]), "a")
+        file.write(" " + data[1])
+    finally:
+        file.close()
+
+
+def read(bot, context):
+    data = bot.message.text[7:]
+    try:
+        file = open("./test/{}".format(data), "r")
+        for string in file:
+            bot.message.reply_text(string)
     finally:
         file.close()
 
@@ -55,12 +70,14 @@ def add(bot, context):
 def run_bot():
     bot = Updater(TOKEN, use_context=True)
     dispatcher = bot.dispatcher
+    
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
     dispatcher.add_handler(PrefixHandler("#", "run", run))
 
     dispatcher.add_handler(PrefixHandler("^", "new", new))
     dispatcher.add_handler(PrefixHandler(">>", "add", add))
+    dispatcher.add_handler(PrefixHandler("<<", "read", read))
 
     dispatcher.add_handler(MessageHandler(Filters.text, message))
 
